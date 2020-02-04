@@ -9,32 +9,19 @@
               title="Conversacion activa"
               class="h-100"
             >
-              <b-media left-align vertical-align="center" class="mb-3">
-                <template v-slot:aside>
-                  <b-img blank blank-color="#ccc" rounded="circle" width="49" alt="placeholder"></b-img>
-                </template>
-                <b-card >
-                  Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin.
-                </b-card>
-              </b-media>
-         
-              <b-media right-align vertical-align="center" class="mb-3">
-              <template v-slot:aside>
-                <b-img blank blank-color="#ccc" rounded="circle" width="49" alt="placeholder"></b-img>
-              </template>
-              <b-card >
-                Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin.
-              </b-card>
-            </b-media>
-              
+            <message-conversation-component v-for="message in messages" :key="message.id" :written-by-me="message.written_by_me">
+              {{message.content}}
+            </message-conversation-component>
+            
               <div slot="footer">
-                  <b-form  class="mb-0">
+                  <b-form  class="mb-0" @submit.prevent="postMessage" autocomplete="off">
                        <b-input-group>
 
-                        <b-form-input type="text" placeholder="Escribe un mensaje"></b-form-input>
+                        <b-form-input type="text" placeholder="Escribe un mensaje"
+                        v-model="newMessage"></b-form-input>
 
                         <b-input-group-append>
-                          <b-button variant="primary">Enviar</b-button>
+                          <b-button type="submit" variant="primary">Enviar</b-button>
                         </b-input-group-append>
                       </b-input-group>
                   </b-form>
@@ -42,10 +29,12 @@
             </b-card>
         </b-col>
         <b-col  cols="4">
-            <b-img v-bind="mainProps" rounded="circle" alt="Circle image" width="48" height="48" blank-color="#777" class="m-1"/></b-img>
+            <b-img  rounded="circle" alt="Circle image" width="48" height="48" blank-color="#777" class="m-1">
+              
+            </b-img>
             <p>Usuario seleccionado</p>
             <hr>
-            <b-form-checkbox >
+            <b-form-checkbox>
                 Desactivar notificaciones
             </b-form-checkbox>
 
@@ -55,12 +44,40 @@
 
 <script>
     export default {
-        mounted(){
-          console.log('Compoent mounted.')
-        },
-         data() {
+       
+        data() {
           return {
-          
+            messages: [],
+            newMessage:''
+          }
+        },
+        mounted(){
+          this.getMessages();
+        },
+        methods:{
+          getMessages(){
+            axios.get('/api/messages')
+              .then((response)=> {
+
+                console.log(response.data);
+                this.messages = response.data;
+              });
+          },
+          postMessage(){
+            const params = {
+              to_id:2,
+              content:this.newMessage
+
+            };
+            axios.post('/api/messages',params)
+              .then((response)=> {
+                if (response.data.success) {
+                  this.newMessage='';
+                  this.getMessages();
+                }else{
+
+                }
+            });
           }
         }
     }

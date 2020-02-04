@@ -1,5 +1,5 @@
 <template>
-    <b-list-group-item :variant="variant">
+    <b-list-group-item :variant="variante">
         <b-row class="p-2" align-h="center">
             <b-col cols="12" md="3" class="text-center" >
                 <b-img  rounded="circle" alt="Circle image" width="48" height="48" v-bind="mainProps" blank-color="#777" class="m-1">
@@ -20,7 +20,7 @@
 <script>
     export default {
         props:[
-            'variant' //recibimos la variable desde la vista
+            'variante' //recibimos la variable desde la vista
         ],
          data() {
           return {

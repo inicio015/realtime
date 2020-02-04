@@ -10,13 +10,13 @@
             </b-form-input>
         </b-form>
         <b-list-group>
-              <contact-component variant="dark">
+              <contact-component variante="dark">
                   
               </contact-component> <!--enviamos variante al componente-->
               <contact-component>
                   
               </contact-component>
-              <contact-component variant="secondary">
+              <contact-component variante="secondary">
                   
               </contact-component>
               
@@ -26,9 +26,7 @@
 
 <script>
     export default {
-        props:[
-            'variant' //recibimos la variable desde la vista
-        ],
+       
          data() {
           return {
             name: 'Antonia Branchina',
