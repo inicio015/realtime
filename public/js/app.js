@@ -30473,6 +30473,7 @@ window.Vue = __webpack_require__(58);
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_bootstrap_vue__["a" /* BootstrapVue */]);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_bootstrap_vue__["b" /* IconsPlugin */]);
+Vue.component('messenger-component', __webpack_require__(314));
 Vue.component('message-conversation-component', __webpack_require__(302));
 Vue.component('contact-component', __webpack_require__(305));
 Vue.component('contact-list-component', __webpack_require__(308));
@@ -48941,9 +48942,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   props: {
     writtenByMe: Boolean
   },
-  mounted: function mounted() {
-    console.log('valor de writtenbyme.', this.writtenByMe);
-  },
+  mounted: function mounted() {},
   data: function data() {
     return {
       content: 'Contenido'
@@ -49072,17 +49071,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['variante' //recibimos la variable desde la vista
-    ],
+    props: {
+        variante: String,
+        conversation: Object //recibimos la variable desde la vista
+    },
     data: function data() {
-        return {
-            name: 'Antonia Branchina',
-            lastMessage: 'Tu: que lo que becerro',
-            lastTime: '1:37 pm',
-            variant: 'dark',
-            mainProps: { blank: true, blankColor: '#777', width: 75, height: 75, class: 'm1' }
-        };
-    }
+        return {};
+    },
+    mounted: function mounted() {}
 });
 
 /***/ }),
@@ -49105,24 +49101,16 @@ var render = function() {
             "b-col",
             { staticClass: "text-center", attrs: { cols: "12", md: "3" } },
             [
-              _c(
-                "b-img",
-                _vm._b(
-                  {
-                    staticClass: "m-1",
-                    attrs: {
-                      rounded: "circle",
-                      alt: "Circle image",
-                      width: "48",
-                      height: "48",
-                      "blank-color": "#777"
-                    }
-                  },
-                  "b-img",
-                  _vm.mainProps,
-                  false
-                )
-              )
+              _c("b-img", {
+                staticClass: "m-1",
+                attrs: {
+                  rounded: "circle",
+                  alt: "Circle image",
+                  width: "48",
+                  height: "48",
+                  "blank-color": "#777"
+                }
+              })
             ],
             1
           ),
@@ -49134,10 +49122,12 @@ var render = function() {
               attrs: { cols: "6", "align-self": "center" }
             },
             [
-              _c("p", { staticClass: "mb-1" }, [_vm._v(_vm._s(_vm.name))]),
+              _c("p", { staticClass: "mb-1" }, [
+                _vm._v(_vm._s(_vm.conversation.contact_name))
+              ]),
               _vm._v(" "),
               _c("p", { staticClass: "text-muted small mb-1" }, [
-                _vm._v(_vm._s(_vm.lastMessage))
+                _vm._v(_vm._s(_vm.conversation.last_message))
               ])
             ]
           ),
@@ -49147,7 +49137,7 @@ var render = function() {
             { staticClass: "d-none d-md-block", attrs: { cols: "3" } },
             [
               _c("p", { staticClass: "text-muted small" }, [
-                _vm._v(_vm._s(_vm.lastTime))
+                _vm._v(_vm._s(_vm.conversation.last_time))
               ])
             ]
           )
@@ -49247,16 +49237,39 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      name: 'Antonia Branchina',
-      lastMessage: 'Tu: que lo que becerro',
-      lastTime: '1:37 pm',
-      variant: 'dark',
-      mainProps: { blank: true, blankColor: '#777', width: 75, height: 75, class: 'm1' }
+      conversations: []
     };
+  },
+  mounted: function mounted() {
+    this.getConversations();
+  },
+
+  methods: {
+    getConversations: function getConversations() {
+      var _this = this;
+
+      axios.get('/api/conversations').then(function (response) {
+        _this.conversations = response.data;
+      });
+    },
+    selectConversation: function selectConversation(conversation) {
+      //console.log(conversation);
+      this.$emit('conversationSelected', conversation); //emitimos un evento a otra vista es decir pasamos los datos de un evento hacia otro componente que obtendra  estos  datos mediante el metodo click
+    }
   }
 });
 
@@ -49285,13 +49298,17 @@ var render = function() {
       _vm._v(" "),
       _c(
         "b-list-group",
-        [
-          _c("contact-component", { attrs: { variante: "dark" } }),
-          _vm._v(" "),
-          _c("contact-component"),
-          _vm._v(" "),
-          _c("contact-component", { attrs: { variante: "secondary" } })
-        ],
+        _vm._l(_vm.conversations, function(conversation) {
+          return _c("contact-component", {
+            key: conversation.id,
+            attrs: { conversation: conversation },
+            nativeOn: {
+              click: function($event) {
+                return _vm.selectConversation(conversation)
+              }
+            }
+          })
+        }),
         1
       )
     ],
@@ -49405,25 +49422,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: { //propirdades  aqui definimos los tipos de propiedades que vienen a nuestro componente
+    /*en este caso tenemos  una propiedad de  tipo numero y otra string podemos definir propiedades de manera booleana tambien osea true y false para hacer validaciones en nuestro componentes */
+    /*estas propiedades vienen emitias del contactListComponent*/
+    contactId: Number,
+    contactName: String
+  },
   data: function data() {
+    // la data que podemos retornar en este caso son variables a las que le podemos agregar valores
     return {
       messages: [],
       newMessage: ''
     };
   },
   mounted: function mounted() {
-    this.getMessages();
+    // este metodo se  ejecuta una ves el componente es cargado en la vista
+    this.getMessages(); // obtenemos el metodo de  getmessages o la funcion que obtendra los mensajes
   },
 
   methods: {
+    // metodos o funciones que ejecutamos casi igual que POO 
     getMessages: function getMessages() {
       var _this = this;
 
-      axios.get('/api/messages').then(function (response) {
-
-        console.log(response.data);
+      axios.get('/api/messages?contact_id=' + this.contactId).then(function (response) {
         _this.messages = response.data;
       });
     },
@@ -49431,7 +49456,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       var _this2 = this;
 
       var params = {
-        to_id: 2,
+        to_id: this.contactId,
         content: this.newMessage
 
       };
@@ -49441,6 +49466,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
           _this2.getMessages();
         } else {}
       });
+    }
+  },
+  watch: {
+    // contiene metodos este objeto y se carga luego de todo
+    //estos metodos se activan cuando existen un nuevo valor es decir cuando obtiene el mismo valor este metodo no se va a  activar hasta que ese valor sea diferente del actual 
+    contactId: function contactId(value) {
+      //console.log(`contactID => ${this.contactId}`);
+      this.getMessages();
     }
   }
 });
@@ -49567,7 +49600,7 @@ var render = function() {
             }
           }),
           _vm._v(" "),
-          _c("p", [_vm._v("Usuario seleccionado")]),
+          _c("p", [_vm._v("Usuario seleccionado: " + _vm._s(_vm.contactName))]),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
@@ -49590,6 +49623,163 @@ if (false) {
     require("vue-hot-reload-api")      .rerender("data-v-febb4826", module.exports)
   }
 }
+
+/***/ }),
+/* 314 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(55)
+/* script */
+var __vue_script__ = __webpack_require__(316)
+/* template */
+var __vue_template__ = __webpack_require__(315)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/MessengerComponent.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-55fca0a1", Component.options)
+  } else {
+    hotAPI.reload("data-v-55fca0a1", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 315 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "b-container",
+    { staticStyle: { height: "calc(100vh - 56px)" }, attrs: { fluid: "" } },
+    [
+      _c(
+        "b-row",
+        { staticClass: "h-100", attrs: { "no-gutters": "" } },
+        [
+          _c(
+            "b-col",
+            { attrs: { cols: "4 " } },
+            [
+              _c("contact-list-component", {
+                on: {
+                  conversationSelected: function($event) {
+                    return _vm.changeActiveConversation($event)
+                  }
+                }
+              })
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "b-col",
+            { attrs: { cols: "8" } },
+            [
+              _vm.selectedConversation
+                ? _c("active-conversation-component", {
+                    attrs: {
+                      "contact-id": _vm.selectedConversation.contact_id,
+                      "contact-name": _vm.selectedConversation.contact_name
+                    }
+                  })
+                : _vm._e()
+            ],
+            1
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-55fca0a1", module.exports)
+  }
+}
+
+/***/ }),
+/* 316 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            selectedConversation: null
+        };
+    },
+    mounted: function mounted() {},
+
+    methods: {
+        changeActiveConversation: function changeActiveConversation(conversation) {
+            //console.log('Nueva conversacion seleccionada',conversation);
+            this.selectedConversation = conversation; // llenamos la variable que esta tipo null con los datos que vienen de contactListComponent en este caso el arreglo que trae la conversacion 
+        }
+    }
+});
 
 /***/ })
 /******/ ]);

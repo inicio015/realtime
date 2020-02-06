@@ -16,7 +16,6 @@
           writtenByMe : Boolean
         },
         mounted(){
-          console.log('valor de writtenbyme.',this.writtenByMe)
         },
          data() {
           return {

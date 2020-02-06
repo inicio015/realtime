@@ -10,15 +10,25 @@
             </b-form-input>
         </b-form>
         <b-list-group>
-              <contact-component variante="dark">
+          
+          <!--enviamos variante al componente-->
+         
+              <contact-component  v-for="conversation in conversations" 
+                :key="conversation.id"
+                :conversation="conversation"
+                @click.native="selectConversation(conversation)">
                   
-              </contact-component> <!--enviamos variante al componente-->
+              </contact-component>
+  
+              <!--contact-component variante="dark">
+                  
+              </contact-component> 
               <contact-component>
                   
               </contact-component>
               <contact-component variante="secondary">
                   
-              </contact-component>
+              </contact-component-->
               
         </b-list-group>
     </div>
@@ -27,13 +37,24 @@
 <script>
     export default {
        
-         data() {
+        data() {
           return {
-            name: 'Antonia Branchina',
-            lastMessage: 'Tu: que lo que becerro',
-            lastTime: '1:37 pm',
-            variant:'dark',
-            mainProps: { blank: true, blankColor: '#777', width: 75, height: 75, class: 'm1' }
+            conversations :[]
+          };
+        },
+        mounted(){
+          this.getConversations();
+        },
+        methods:{
+          getConversations(){
+            axios.get('/api/conversations')
+            .then((response)=>{
+               this.conversations = response.data;
+            });
+          },
+          selectConversation(conversation){
+            //console.log(conversation);
+            this.$emit('conversationSelected',conversation); //emitimos un evento a otra vista es decir pasamos los datos de un evento hacia otro componente que obtendra  estos  datos mediante el metodo click
           }
         }
     }
