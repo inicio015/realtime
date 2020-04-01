@@ -2,7 +2,7 @@
 
 @section('content')
 <!--maquetacion con bootstrapvue-->
-<messenger-component>
+<messenger-component :user-id="{{ auth()->id() }}" >
     
 </messenger-component>
 
